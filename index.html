@@ -1366,6 +1366,117 @@
     </div>
   </div>
 
+  <!-- Modal: Personalizar Pedido (cliente) -->
+  <div id="customizationModal" class="hidden fixed inset-0 z-50 animate-fade-in">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeCustomizationModal()"></div>
+    <div class="relative min-h-screen flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 animate-scale-in" style="max-height:90vh;overflow-y:auto;">
+        <div class="sticky top-0 bg-white border-b border-slate-100 px-5 pt-5 pb-4 rounded-t-2xl z-10">
+          <div class="flex items-center gap-3">
+            <div class="p-2 rounded-xl flex-shrink-0" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);">
+              <i data-lucide="cake" class="h-5 w-5 text-violet-500"></i>
+            </div>
+            <div class="min-w-0">
+              <h3 id="customModalTitle" class="text-base font-black text-slate-800 truncate">Personalizar</h3>
+              <p id="customModalDesc" class="text-xs text-slate-500 leading-tight"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-5 py-4 space-y-5">
+          <div id="customFloorSection">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-500 mb-2">Numero de Andares</p>
+            <div id="customFloorOptions" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <div id="customSizeSection" class="hidden">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-500 mb-2">Tamanho / Fatias</p>
+            <div id="customSizeOptions" class="space-y-2" style="max-height:13rem;overflow-y:auto;padding-right:2px;"></div>
+          </div>
+
+          <div id="customFillingSection">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-500 mb-2">Recheio</p>
+            <div id="customFillingOptions" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <div id="customBrigadeiroSection" class="hidden">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-500 mb-2">Brigadeiro</p>
+            <div id="customBrigadeiroOptions" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wide">Qtd.</label>
+              <input id="customQty" type="number" min="1" value="1" class="w-full p-3 border border-slate-300 rounded-xl text-center font-bold text-sm focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-all" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wide">Obs.</label>
+              <input id="customNotes" type="text" placeholder="Opcional" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-all" />
+            </div>
+          </div>
+
+          <div id="customPricePreview" class="hidden rounded-xl border border-violet-200 px-4 py-3" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-violet-700">Valor selecionado</span>
+              <span id="customPriceValue" class="text-xl font-black text-violet-700">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sticky bottom-0 bg-white border-t border-slate-100 px-5 py-4 flex gap-3 rounded-b-2xl">
+          <button onclick="closeCustomizationModal()" class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold transition-colors">Cancelar</button>
+          <button onclick="addCustomizedItemToCart()" class="flex-1 py-3 rounded-xl text-white text-sm font-bold shadow-sm transition-colors" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">Adicionar ao carrinho</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Configurar Variantes (admin) -->
+  <div id="variantAdminModal" class="hidden fixed inset-0 z-50 animate-fade-in">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeVariantAdminModal()"></div>
+    <div class="relative min-h-screen flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 animate-scale-in" style="max-height:90vh;overflow-y:auto;">
+        <div class="sticky top-0 bg-white border-b border-slate-100 px-5 pt-5 pb-4 rounded-t-2xl z-10">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <h3 class="text-base font-black text-slate-800">Variantes do Item</h3>
+              <p id="variantAdminItemName" class="text-xs text-slate-500 mt-0.5 truncate max-w-xs"></p>
+            </div>
+            <label class="flex items-center gap-2 text-sm font-semibold text-slate-600 flex-shrink-0">
+              <input id="variantEnabled" type="checkbox" class="accent-violet-600 w-4 h-4" />
+              Ativo
+            </label>
+          </div>
+        </div>
+
+        <div class="px-5 py-4 space-y-5">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-600">Andares</p>
+              <button onclick="addVariantFloor()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold transition-colors">+ Andar</button>
+            </div>
+            <div id="variantFloorsContainer" class="space-y-3"></div>
+          </div>
+
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-600 mb-1">Recheios (um por linha)</p>
+            <textarea id="variantFillings" rows="4" placeholder="Amendoim&#10;Doce de leite&#10;Chocolate" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-all resize-none"></textarea>
+          </div>
+
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-600 mb-1">Brigadeiros (um por linha)</p>
+            <textarea id="variantBrigadeiros" rows="4" placeholder="Tradicional&#10;Ninho&#10;Beijinho" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-all resize-none"></textarea>
+          </div>
+        </div>
+
+        <div class="sticky bottom-0 bg-white border-t border-slate-100 px-5 py-4 flex gap-3 rounded-b-2xl">
+          <button onclick="closeVariantAdminModal()" class="flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancelar</button>
+          <button onclick="saveVariantConfig()" class="flex-1 py-3 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-sm font-bold transition-colors">Salvar variantes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="paymentModal" class="hidden fixed inset-0 z-50 animate-fade-in">
     <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
     <div class="relative min-h-screen flex items-center justify-center p-4">
@@ -1481,14 +1592,68 @@
     let currentRecipeIngredients = [];
     let editingMaterialId = "";
     let editingRecipeId = "";
+    const MENU_CUSTOMIZATIONS_KEY = "tatiany_menu_customizations";
+    const CHANTININHO_DEFAULT = {
+      enabled: true,
+      floorGroups: [
+        {
+          id: "f1", label: "1 Andar", consultarPreco: false,
+          sizes: [
+            { label: "14CM – 10 fatias", price: 80 },
+            { label: "16CM – 15 fatias", price: 100 },
+            { label: "18CM – 20 fatias", price: 120 },
+            { label: "20CM – 25 fatias", price: 130 },
+            { label: "22CM – 30 fatias", price: 150 },
+            { label: "24CM – 40 fatias", price: 180 },
+            { label: "28CM – 50 fatias", price: 200 },
+            { label: "30CM – 60 fatias", price: 250 },
+            { label: "32CM – 70 fatias", price: 300 },
+            { label: "35CM – 80 fatias", price: 350 },
+            { label: "38CM – 100 fatias", price: 380 }
+          ]
+        },
+        {
+          id: "f2", label: "2 Andares", consultarPreco: false,
+          sizes: [
+            { label: "30 fatias", price: 200 },
+            { label: "45 fatias", price: 250 },
+            { label: "55 fatias", price: 280 },
+            { label: "65 fatias", price: 300 },
+            { label: "75 fatias", price: 350 },
+            { label: "85 fatias", price: 400 },
+            { label: "100 fatias", price: 450 }
+          ]
+        },
+        { id: "f3", label: "3 Andares", consultarPreco: true, sizes: [] }
+      ],
+      fillings: ["Amendoim", "Doce de leite", "4 leites", "Ninho", "Beijinho", "Nesquick", "Chocolate", "Abacaxi", "Maracujá"],
+      brigadeiros: ["Tradicional", "Amendoim", "Ninho", "Beijinho", "Coco queimado", "Moranguinho", "Cupcake e Chantilly", "Pirulito de Chocolate"]
+    };
+    let menuCustomizations = (() => {
+      const stored = JSON.parse(localStorage.getItem(MENU_CUSTOMIZATIONS_KEY) || "{}");
+      if (!stored["Bolo Chantininho - Massa Branca"]) {
+        stored["Bolo Chantininho - Massa Branca"] = CHANTININHO_DEFAULT;
+        localStorage.setItem(MENU_CUSTOMIZATIONS_KEY, JSON.stringify(stored));
+      }
+      return stored;
+    })();
+    let customizationItem = null;
+    let customizationState = { floor: null, size: null, filling: null, brigadeiro: null };
+    let variantAdminItemId = null;
+    let variantFloorDraft = [];
+
     let menuItems = [
+      { nome: "Bolo Chantininho - Massa Branca", descricao: "Massa branca com chantininho. Toque para personalizar.", preco: 80 },
       { nome: "Bolo Chocolate Tradicional", descricao: "Massa chocolate, recheio brigadeiro", preco: 95 },
       { nome: "Bolo Ninho com Morango", descricao: "Massa branca, ninho e morangos frescos", preco: 120 },
       { nome: "Bolo Red Velvet", descricao: "Massa red velvet e cream cheese", preco: 130 },
       { nome: "Bolo Prestígio", descricao: "Chocolate com coco cremoso", preco: 110 },
       { nome: "Bolo Cenoura Gourmet", descricao: "Cenoura com cobertura de chocolate", preco: 90 },
       { nome: "Bolo Dois Amores", descricao: "Brigadeiro preto e branco", preco: 125 }
-    ];
+    ].map(item => {
+      const c = menuCustomizations[item.nome] || null;
+      return { ...item, customization: c?.enabled ? c : null };
+    });
 
     function moneyBRL(v) {
       return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v || 0);
@@ -2586,6 +2751,312 @@
       if (icon) icon.style.transform = collapsed ? "rotate(180deg)" : "rotate(0deg)";
     }
 
+    // ── Personalizacao de produto ──────────────────────────────────────────────
+
+    function openCustomizationModal(item) {
+      customizationItem = item;
+      customizationState = { floor: null, size: null, filling: null, brigadeiro: null };
+
+      document.getElementById("customModalTitle").textContent = item.nome;
+      document.getElementById("customModalDesc").textContent = item.descricao || "";
+      document.getElementById("customQty").value = 1;
+      document.getElementById("customNotes").value = "";
+      document.getElementById("customPricePreview").classList.add("hidden");
+      document.getElementById("customSizeSection").classList.add("hidden");
+
+      const c = item.customization;
+
+      const floorSection = document.getElementById("customFloorSection");
+      const floorContainer = document.getElementById("customFloorOptions");
+      if (c?.floorGroups?.length) {
+        floorSection.classList.remove("hidden");
+        floorContainer.innerHTML = c.floorGroups.map(f => `
+          <button onclick="selectCustomFloor('${escapeHtml(f.id)}')" id="cfloor-${escapeHtml(f.id)}"
+            class="px-4 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-bold text-slate-700 hover:border-violet-400 transition-all">
+            ${escapeHtml(f.label)}
+          </button>`).join("");
+      } else {
+        floorSection.classList.add("hidden");
+      }
+
+      const fillingSection = document.getElementById("customFillingSection");
+      const fillingContainer = document.getElementById("customFillingOptions");
+      if (c?.fillings?.length) {
+        fillingSection.classList.remove("hidden");
+        fillingContainer.innerHTML = c.fillings.map(f => `
+          <button onclick="selectCustomFilling('${escapeHtml(f)}')" id="cfilling-${f.replace(/\s+/g, '-')}"
+            class="px-3 py-1.5 rounded-full border-2 border-slate-200 text-xs font-semibold text-slate-700 hover:border-violet-400 transition-all">
+            ${escapeHtml(f)}
+          </button>`).join("");
+      } else {
+        fillingSection.classList.add("hidden");
+      }
+
+      const brigSection = document.getElementById("customBrigadeiroSection");
+      const brigContainer = document.getElementById("customBrigadeiroOptions");
+      if (c?.brigadeiros?.length) {
+        brigSection.classList.remove("hidden");
+        brigContainer.innerHTML = c.brigadeiros.map(b => `
+          <button onclick="selectCustomBrigadeiro('${escapeHtml(b)}')" id="cbrig-${b.replace(/\s+/g, '-')}"
+            class="px-3 py-1.5 rounded-full border-2 border-slate-200 text-xs font-semibold text-slate-700 hover:border-violet-400 transition-all">
+            ${escapeHtml(b)}
+          </button>`).join("");
+      } else {
+        brigSection.classList.add("hidden");
+      }
+
+      document.getElementById("customizationModal").classList.remove("hidden");
+      if (typeof lucide !== "undefined") lucide.createIcons();
+    }
+
+    function closeCustomizationModal() {
+      document.getElementById("customizationModal").classList.add("hidden");
+      customizationItem = null;
+    }
+
+    function selectCustomFloor(floorId) {
+      const c = customizationItem?.customization;
+      if (!c) return;
+      customizationState.floor = floorId;
+      customizationState.size = null;
+
+      c.floorGroups.forEach(f => {
+        const btn = document.getElementById(`cfloor-${f.id}`);
+        if (!btn) return;
+        btn.className = f.id === floorId
+          ? "px-4 py-2.5 rounded-xl border-2 border-violet-500 bg-violet-50 text-sm font-bold text-violet-700 transition-all"
+          : "px-4 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-bold text-slate-700 hover:border-violet-400 transition-all";
+      });
+
+      const floor = c.floorGroups.find(f => f.id === floorId);
+      const sizeSection = document.getElementById("customSizeSection");
+      const sizeContainer = document.getElementById("customSizeOptions");
+
+      if (floor?.consultarPreco) {
+        sizeSection.classList.remove("hidden");
+        sizeContainer.innerHTML = `
+          <div class="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 font-semibold">
+            Para 3 andares o valor e consultado via WhatsApp antes de confirmar.
+          </div>`;
+        document.getElementById("customPricePreview").classList.add("hidden");
+        return;
+      }
+
+      if (!floor?.sizes?.length) { sizeSection.classList.add("hidden"); return; }
+
+      sizeSection.classList.remove("hidden");
+      sizeContainer.innerHTML = floor.sizes.map((size, idx) => `
+        <button onclick="selectCustomSize(${idx}, ${size.price})" id="csize-${idx}"
+          class="w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 border-slate-200 hover:border-violet-400 transition-all text-left">
+          <span class="text-sm font-semibold text-slate-700">${escapeHtml(size.label)}</span>
+          <span class="text-sm font-black text-violet-700">${moneyBRL(size.price)}</span>
+        </button>`).join("");
+
+      updateCustomPricePreview();
+    }
+
+    function selectCustomSize(idx, price) {
+      customizationState.size = { idx, price };
+      const floor = customizationItem?.customization?.floorGroups?.find(f => f.id === customizationState.floor);
+      if (!floor) return;
+      floor.sizes.forEach((_, i) => {
+        const btn = document.getElementById(`csize-${i}`);
+        if (!btn) return;
+        btn.className = i === idx
+          ? "w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 border-violet-500 bg-violet-50 transition-all text-left"
+          : "w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 border-slate-200 hover:border-violet-400 transition-all text-left";
+      });
+      updateCustomPricePreview();
+    }
+
+    function selectCustomFilling(name) {
+      customizationState.filling = name;
+      (customizationItem?.customization?.fillings || []).forEach(f => {
+        const btn = document.getElementById(`cfilling-${f.replace(/\s+/g, '-')}`);
+        if (!btn) return;
+        btn.className = f === name
+          ? "px-3 py-1.5 rounded-full border-2 border-violet-500 bg-violet-50 text-xs font-bold text-violet-700 transition-all"
+          : "px-3 py-1.5 rounded-full border-2 border-slate-200 text-xs font-semibold text-slate-700 hover:border-violet-400 transition-all";
+      });
+    }
+
+    function selectCustomBrigadeiro(name) {
+      customizationState.brigadeiro = name;
+      (customizationItem?.customization?.brigadeiros || []).forEach(b => {
+        const btn = document.getElementById(`cbrig-${b.replace(/\s+/g, '-')}`);
+        if (!btn) return;
+        btn.className = b === name
+          ? "px-3 py-1.5 rounded-full border-2 border-violet-500 bg-violet-50 text-xs font-bold text-violet-700 transition-all"
+          : "px-3 py-1.5 rounded-full border-2 border-slate-200 text-xs font-semibold text-slate-700 hover:border-violet-400 transition-all";
+      });
+    }
+
+    function updateCustomPricePreview() {
+      const preview = document.getElementById("customPricePreview");
+      const el = document.getElementById("customPriceValue");
+      if (customizationState.size?.price) {
+        preview.classList.remove("hidden");
+        el.textContent = moneyBRL(customizationState.size.price);
+      } else {
+        preview.classList.add("hidden");
+      }
+    }
+
+    function addCustomizedItemToCart() {
+      if (!customizationItem) return;
+      const c = customizationItem.customization;
+
+      if (c?.floorGroups?.length && !customizationState.floor) {
+        showAlertModal("Selecione o numero de andares.");
+        return;
+      }
+      const floor = c?.floorGroups?.find(f => f.id === customizationState.floor);
+      if (floor && !floor.consultarPreco && floor.sizes?.length && !customizationState.size) {
+        showAlertModal("Selecione o tamanho.");
+        return;
+      }
+      if (c?.fillings?.length && !customizationState.filling) {
+        showAlertModal("Selecione o recheio.");
+        return;
+      }
+
+      const price = floor?.consultarPreco ? 0 : (customizationState.size?.price || customizationItem.preco || 0);
+      const qty = Math.max(1, parseInt(document.getElementById("customQty").value, 10) || 1);
+      const notes = document.getElementById("customNotes").value.trim();
+
+      const sizeLabel = floor?.consultarPreco
+        ? "VALOR A CONSULTAR"
+        : (floor?.sizes?.[customizationState.size?.idx]?.label || "");
+
+      const sizePart = [floor?.label, sizeLabel].filter(Boolean).join(" | ");
+      const notesParts = [
+        customizationState.filling ? `Recheio: ${customizationState.filling}` : "",
+        customizationState.brigadeiro ? `Brigadeiro: ${customizationState.brigadeiro}` : "",
+        notes
+      ].filter(Boolean);
+
+      clientCart.push({
+        name: customizationItem.nome,
+        description: customizationItem.descricao,
+        unitPrice: price,
+        quantity: qty,
+        size: sizePart || "Personalizado",
+        notes: notesParts.join(" | ") || "Sem observacoes"
+      });
+
+      closeCustomizationModal();
+      selectedMenuItem = customizationItem;
+      document.getElementById("clienteMenuSection").classList.add("hidden");
+      document.getElementById("clienteOrderBox").classList.remove("hidden");
+      renderClientCart();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // ── Admin: Variantes ──────────────────────────────────────────────────────
+
+    function openVariantAdminModal(itemId) {
+      const item = adminMenuItems.find(m => String(m.id) === String(itemId));
+      if (!item) return;
+      variantAdminItemId = itemId;
+
+      const existing = menuCustomizations[String(itemId)] || menuCustomizations[item.nome] || {
+        enabled: false, floorGroups: [], fillings: [], brigadeiros: []
+      };
+
+      document.getElementById("variantAdminItemName").textContent = item.nome;
+      document.getElementById("variantEnabled").checked = !!existing.enabled;
+      document.getElementById("variantFillings").value = (existing.fillings || []).join("\n");
+      document.getElementById("variantBrigadeiros").value = (existing.brigadeiros || []).join("\n");
+
+      variantFloorDraft = (existing.floorGroups || []).map(f => ({ ...f, sizes: [...(f.sizes || [])] }));
+      renderVariantFloors();
+      document.getElementById("variantAdminModal").classList.remove("hidden");
+    }
+
+    function closeVariantAdminModal() {
+      document.getElementById("variantAdminModal").classList.add("hidden");
+      variantAdminItemId = null;
+      variantFloorDraft = [];
+    }
+
+    function addVariantFloor() {
+      const n = variantFloorDraft.length + 1;
+      variantFloorDraft.push({
+        id: `f${Date.now()}`,
+        label: n === 1 ? "1 Andar" : `${n} Andares`,
+        consultarPreco: false,
+        sizes: []
+      });
+      renderVariantFloors();
+    }
+
+    function removeVariantFloor(idx) {
+      variantFloorDraft.splice(idx, 1);
+      renderVariantFloors();
+    }
+
+    function renderVariantFloors() {
+      const container = document.getElementById("variantFloorsContainer");
+      if (!container) return;
+      if (!variantFloorDraft.length) {
+        container.innerHTML = '<p class="text-xs text-slate-400 italic">Nenhum andar configurado. Clique em "+ Andar" para adicionar.</p>';
+        return;
+      }
+      container.innerHTML = variantFloorDraft.map((floor, idx) => `
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+          <div class="flex items-center gap-2">
+            <input type="text" value="${escapeHtml(floor.label)}" oninput="variantFloorDraft[${idx}].label = this.value"
+              class="flex-1 p-2 border border-slate-300 rounded-lg text-sm font-semibold focus:border-violet-400 focus:ring-1 focus:ring-violet-100" placeholder="Ex: 1 Andar" />
+            <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-600 whitespace-nowrap">
+              <input type="checkbox" ${floor.consultarPreco ? "checked" : ""} onchange="variantFloorDraft[${idx}].consultarPreco = this.checked; renderVariantFloors()" class="accent-amber-500" />
+              Consultar
+            </label>
+            <button onclick="removeVariantFloor(${idx})" class="text-red-500 hover:text-red-700 text-lg font-black leading-none px-1">&times;</button>
+          </div>
+          ${!floor.consultarPreco ? `
+            <div>
+              <p class="text-[11px] text-slate-500 mb-1 font-semibold">Tamanhos (um por linha: <span class="font-mono bg-slate-200 px-1 rounded">Label|Preco</span>)</p>
+              <textarea rows="4" oninput="updateVariantFloorSizes(${idx}, this.value)"
+                class="w-full p-2 border border-slate-300 rounded-lg text-xs font-mono focus:border-violet-400 focus:ring-1 focus:ring-violet-100 resize-none"
+                placeholder="14CM - 10 fatias|80&#10;16CM - 15 fatias|100">${floor.sizes.map(s => `${s.label}|${s.price}`).join("\n")}</textarea>
+            </div>` : `
+            <p class="text-xs text-amber-600 font-semibold italic">Preco consultado via WhatsApp.</p>`}
+        </div>`).join("");
+    }
+
+    function updateVariantFloorSizes(floorIdx, text) {
+      variantFloorDraft[floorIdx].sizes = text.split("\n").map(line => {
+        const sep = line.lastIndexOf("|");
+        if (sep === -1) return null;
+        const label = line.slice(0, sep).trim();
+        const price = Number(line.slice(sep + 1).trim().replace(",", "."));
+        return label && price > 0 ? { label, price } : null;
+      }).filter(Boolean);
+    }
+
+    function saveVariantConfig() {
+      if (!variantAdminItemId) return;
+      const item = adminMenuItems.find(m => String(m.id) === String(variantAdminItemId));
+      if (!item) return;
+
+      const enabled = document.getElementById("variantEnabled").checked;
+      const fillings = document.getElementById("variantFillings").value.split("\n").map(s => s.trim()).filter(Boolean);
+      const brigadeiros = document.getElementById("variantBrigadeiros").value.split("\n").map(s => s.trim()).filter(Boolean);
+      const config = { enabled, floorGroups: variantFloorDraft, fillings, brigadeiros };
+
+      menuCustomizations[String(item.id)] = config;
+      menuCustomizations[item.nome] = config;
+      localStorage.setItem(MENU_CUSTOMIZATIONS_KEY, JSON.stringify(menuCustomizations));
+
+      const mi = menuItems.find(m => String(m.id) === String(item.id) || m.nome === item.nome);
+      if (mi) mi.customization = enabled ? config : null;
+
+      closeVariantAdminModal();
+      renderAdminMenuManager(adminMenuItems);
+      renderMenu();
+      showAlertModal("Variantes salvas com sucesso!");
+    }
+
     async function refreshClientOrderStatuses() {
       if (!clientOrders.length) return;
       const ids = clientOrders.map(o => o.id).join(",");
@@ -2641,23 +3112,35 @@
         menuGrid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-sm">Cardapio indisponivel no momento.</div>`;
         return;
       }
-      menuGrid.innerHTML = menuItems.map((item, index) => `
-        <article onclick="openClientOrderBox(${index})" class="menu-card bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer border border-rose-100/60 active:scale-95">
-          <div class="h-20 flex items-center justify-center" style="background:linear-gradient(135deg,#fff1f2,#fce7f3);">
-            <i data-lucide="cake" class="h-10 w-10 text-rose-400"></i>
+      menuGrid.innerHTML = menuItems.map((item, index) => {
+        const hasCustom = !!item.customization?.enabled;
+        const priceLabel = hasCustom && Number(item.preco || 0) === 0
+          ? '<span class="text-xs font-bold text-violet-600">A partir de R$ 80</span>'
+          : `<span class="text-base font-black text-rose-600">${moneyBRL(Number(item.preco || 0))}</span>`;
+        const actionBtn = hasCustom
+          ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-sm" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">
+               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>
+               Personalizar
+             </span>`
+          : `<span class="inline-flex items-center justify-center h-7 w-7 rounded-full text-white shadow-sm" style="background:linear-gradient(135deg,#e11d48,#ec4899);">
+               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+             </span>`;
+        return `
+        <article onclick="openClientOrderBox(${index})" class="menu-card bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer border ${hasCustom ? "border-violet-200" : "border-rose-100/60"} active:scale-95">
+          <div class="h-20 flex items-center justify-center relative" style="background:${hasCustom ? "linear-gradient(135deg,#f5f3ff,#ede9fe)" : "linear-gradient(135deg,#fff1f2,#fce7f3)"};">
+            <i data-lucide="cake" class="h-10 w-10 ${hasCustom ? "text-violet-400" : "text-rose-400"}"></i>
+            ${hasCustom ? `<span class="absolute top-1.5 right-1.5 text-[9px] font-black uppercase tracking-wide bg-violet-600 text-white px-1.5 py-0.5 rounded-full">Personaliz.</span>` : ""}
           </div>
           <div class="p-3">
             <h3 class="font-black text-slate-800 text-sm leading-tight line-clamp-2">${escapeHtml(item.nome)}</h3>
             ${item.descricao ? `<p class="text-xs text-slate-500 mt-1 leading-snug line-clamp-2">${escapeHtml(item.descricao)}</p>` : ""}
             <div class="flex items-center justify-between mt-3">
-              <span class="text-base font-black text-rose-600">${moneyBRL(Number(item.preco || 0))}</span>
-              <span class="inline-flex items-center justify-center h-7 w-7 rounded-full text-white shadow-sm" style="background:linear-gradient(135deg,#e11d48,#ec4899);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-              </span>
+              ${priceLabel}
+              ${actionBtn}
             </div>
           </div>
-        </article>
-      `).join("");
+        </article>`;
+      }).join("");
       if (typeof lucide !== "undefined") lucide.createIcons();
     }
 
@@ -2690,19 +3173,23 @@
         list.innerHTML = '<li class="text-sm text-slate-500">Nenhum item no cardápio.</li>';
         return;
       }
-      list.innerHTML = items.map((item) => `
-        <li class="rounded-lg border border-slate-200 p-3 flex items-center justify-between gap-3">
-          <div>
-            <p class="font-semibold text-sm text-slate-800">${item.nome}</p>
-            <p class="text-xs text-slate-500">${item.descricao || "Sem descrição"}</p>
+      list.innerHTML = items.map((item) => {
+        const hasV = !!(menuCustomizations[String(item.id || "")] || menuCustomizations[item.nome])?.enabled;
+        return `
+        <li class="rounded-lg border border-slate-200 p-3 flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-semibold text-sm text-slate-800">${escapeHtml(item.nome)}</p>
+            <p class="text-xs text-slate-500">${escapeHtml(item.descricao || "Sem descrição")}</p>
             <p class="text-xs font-semibold text-rose-700 mt-1">${moneyBRL(Number(item.preco || 0))}</p>
+            ${hasV ? '<span class="inline-block mt-1 text-[10px] bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-bold">Variantes ativas</span>' : ""}
           </div>
-          <div class="flex gap-2">
+          <div class="flex flex-col gap-1.5 flex-shrink-0">
+            <button onclick="openVariantAdminModal('${item.id}')" class="px-3 py-1 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold">Variantes</button>
             <button onclick="startEditMenuItem('${item.id}')" class="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs">Editar</button>
             <button onclick="removeMenuItem('${item.id}')" class="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs">Remover</button>
           </div>
-        </li>
-      `).join("");
+        </li>`;
+      }).join("");
     }
 
     async function loadStockItems() {
@@ -2858,12 +3345,16 @@
         const data = await response.json();
         if (!data.ok) return;
         const active = Array.isArray(data.activeMenuItems) ? data.activeMenuItems : [];
-        menuItems = active.map((item) => ({
-          id: item.id,
-          nome: item.nome,
-          descricao: item.descricao,
-          preco: Number(item.preco || 0)
-        }));
+        menuItems = active.map((item) => {
+          const c = menuCustomizations[String(item.id || "")] || menuCustomizations[item.nome] || null;
+          return {
+            id: item.id,
+            nome: item.nome,
+            descricao: item.descricao,
+            preco: Number(item.preco || 0),
+            customization: c?.enabled ? c : null
+          };
+        });
         renderMenu();
         if (includeAdminList) {
           const allItems = Array.isArray(data.menuItems) ? data.menuItems : [];
@@ -3300,6 +3791,10 @@
 
     function openClientOrderBox(index) {
       selectedMenuItem = menuItems[index];
+      if (selectedMenuItem.customization?.enabled) {
+        openCustomizationModal(selectedMenuItem);
+        return;
+      }
       document.getElementById("clienteMenuSection").classList.add("hidden");
       document.getElementById("clienteCheckoutPanel").classList.add("hidden");
       document.getElementById("clienteOrderBox").classList.remove("hidden");
