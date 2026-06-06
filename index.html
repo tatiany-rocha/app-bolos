@@ -206,19 +206,23 @@
         </div>
 
         <!-- Meus Pedidos (aparece se cliente tiver pedidos salvos) -->
-        <div id="clientOrdersSection" class="hidden px-4 pt-4 pb-1 max-w-screen-sm mx-auto w-full">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="font-black text-slate-800 text-sm flex items-center gap-2">
-              <i data-lucide="package" class="h-4 w-4 text-rose-500"></i>
-              Meus Pedidos
-            </h3>
-            <button onclick="refreshClientOrderStatuses()" class="text-xs text-rose-500 font-semibold flex items-center gap-1 active:opacity-60">
-              <i data-lucide="refresh-cw" class="h-3 w-3"></i>
-              Atualizar
-            </button>
+        <div id="clientOrdersSection" class="hidden px-4 pt-5 max-w-screen-sm mx-auto w-full">
+          <div class="rounded-2xl border border-rose-100 bg-white shadow-sm overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-rose-100" style="background: linear-gradient(135deg, #fff1f2, #fce7f3);">
+              <h3 class="font-black text-rose-700 text-sm flex items-center gap-2">
+                <i data-lucide="package" class="h-4 w-4 text-rose-500"></i>
+                Meus Pedidos
+              </h3>
+              <button onclick="refreshClientOrderStatuses()" class="flex items-center gap-1.5 text-xs font-semibold text-rose-600 bg-white/70 hover:bg-white rounded-full px-3 py-1.5 active:opacity-60 transition-colors">
+                <i data-lucide="refresh-cw" class="h-3 w-3"></i>
+                Atualizar
+              </button>
+            </div>
+            <!-- Lista de pedidos -->
+            <div class="px-4 py-4">
+              <ul id="clientOrdersList" class="space-y-3"></ul>
+            </div>
           </div>
-          <ul id="clientOrdersList" class="space-y-3"></ul>
-          <div class="h-px bg-slate-200 mt-5 mb-1"></div>
         </div>
 
         <!-- Grid de bolos -->
@@ -693,7 +697,7 @@
                   <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide flex items-center gap-2">
                       <i data-lucide="package-plus" class="h-4 w-4 text-slate-600"></i>
-                      Cadastro de estoque
+                      <span id="stockFormTitle">Cadastro de estoque</span>
                     </h3>
                     <button onclick="clearStockForm()" class="text-xs text-slate-500 hover:text-slate-700 font-semibold">Limpar</button>
                   </div>
@@ -705,7 +709,7 @@
                     <input id="stockMinInput" type="number" min="0" step="0.01" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="Estoque mínimo" />
                     <input id="stockCostInput" type="number" min="0" step="0.01" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="Custo unitário" />
                   </div>
-                  <button onclick="saveStockItem()" class="w-full px-4 py-3 rounded-lg bg-slate-900 hover:bg-slate-700 text-white text-sm font-bold transition-colors">Salvar item de estoque</button>
+                  <button id="stockSaveBtn" onclick="saveStockItem()" class="w-full px-4 py-3 rounded-lg bg-slate-900 hover:bg-slate-700 text-white text-sm font-bold transition-colors">Salvar item de estoque</button>
                 </article>
                 <article class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                   <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
@@ -1462,6 +1466,7 @@
     let revenueChartResizeObserver = null;
     let autoRefreshHandle = null;
     let editingMenuItemId = "";
+    let editingStockItemId = "";
     let adminMenuItems = [];
     let adminQuoteItems = [];
     let pendingPayments = [];
@@ -2518,28 +2523,67 @@
       if (!clientOrders.length) { section.classList.add("hidden"); return; }
       section.classList.remove("hidden");
       const list = document.getElementById("clientOrdersList");
-      list.innerHTML = clientOrders.slice(0, 10).map(order => {
-        const cfg = CLIENT_STATUS_CONFIG[order.status] || CLIENT_STATUS_CONFIG.pendente;
-        const itemsSummary = (order.items || []).map(i => `${i.quantity}x ${escapeHtml(i.name)}`).join(", ");
-        const dateStr = order.deliveryDate
-          ? new Date(order.deliveryDate + "T00:00:00").toLocaleDateString("pt-BR")
-          : "";
-        return `
-          <li class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div class="flex items-start justify-between gap-2 mb-1.5">
-              <div>
-                <p class="font-bold text-slate-800 text-sm leading-tight">${escapeHtml(order.customerName || "Pedido")}</p>
-                ${dateStr ? `<p class="text-xs text-slate-500">Entrega: ${dateStr}</p>` : ""}
-              </div>
-              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${cfg.cls}">
-                ${cfg.label}
-              </span>
-            </div>
-            <p class="text-xs text-slate-600 leading-relaxed">${itemsSummary}</p>
-            <p class="text-sm font-black text-rose-600 mt-1.5">${moneyBRL(Number(order.total || 0))}</p>
-          </li>
-        `;
-      }).join("");
+
+      const GROUP_ORDER = ["em_preparo", "pendente", "concluido", "recusado", "cancelado"];
+      const byStatus = {};
+      clientOrders.slice(0, 30).forEach(order => {
+        const st = order.status || "pendente";
+        if (!byStatus[st]) byStatus[st] = [];
+        byStatus[st].push(order);
+      });
+
+      const rendered = GROUP_ORDER
+        .filter(key => byStatus[key]?.length)
+        .map((key, idx) => {
+          const cfg = CLIENT_STATUS_CONFIG[key] || CLIENT_STATUS_CONFIG.pendente;
+          const orders = byStatus[key];
+          const groupId = `client-group-${key}`;
+          const cards = orders.map(order => {
+            const itemsSummary = (order.items || []).map(i => `${i.quantity}x ${escapeHtml(i.name)}`).join(", ");
+            const dateStr = order.deliveryDate
+              ? new Date(order.deliveryDate + "T00:00:00").toLocaleDateString("pt-BR")
+              : "";
+            return `
+              <li class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="flex items-start justify-between gap-2 mb-1.5">
+                  <div>
+                    <p class="font-bold text-slate-800 text-sm leading-tight">${escapeHtml(order.customerName || "Pedido")}</p>
+                    ${dateStr ? `<p class="text-xs text-slate-500">Entrega: ${dateStr}</p>` : ""}
+                  </div>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${cfg.cls}">
+                    ${cfg.label}
+                  </span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">${itemsSummary}</p>
+                <p class="text-sm font-black text-rose-600 mt-1.5">${moneyBRL(Number(order.total || 0))}</p>
+              </li>
+            `;
+          }).join("");
+
+          return `
+            <li${idx > 0 ? ' class="mt-4"' : ''}>
+              <button onclick="toggleClientOrderGroup('${groupId}')" class="flex items-center justify-between w-full gap-2 mb-2 active:opacity-70">
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-black uppercase tracking-[0.18em] ${cfg.cls} px-2.5 py-1 rounded-full">${cfg.label}</span>
+                  <span class="text-xs text-slate-400">${orders.length} pedido(s)</span>
+                </div>
+                <i id="${groupId}-icon" data-lucide="chevron-up" class="h-4 w-4 text-slate-400 flex-shrink-0" style="transition:transform .2s ease;"></i>
+              </button>
+              <ul id="${groupId}" class="space-y-2">${cards}</ul>
+            </li>
+          `;
+        }).join("");
+
+      list.innerHTML = rendered || '<li class="text-sm text-slate-400 text-center py-4">Nenhum pedido encontrado.</li>';
+      if (typeof lucide !== "undefined") lucide.createIcons();
+    }
+
+    function toggleClientOrderGroup(groupId) {
+      const el = document.getElementById(groupId);
+      const icon = document.getElementById(groupId + "-icon");
+      if (!el) return;
+      const collapsed = el.classList.toggle("hidden");
+      if (icon) icon.style.transform = collapsed ? "rotate(180deg)" : "rotate(0deg)";
     }
 
     async function refreshClientOrderStatuses() {
@@ -2684,12 +2728,17 @@
     }
 
     function clearStockForm() {
+      editingStockItemId = "";
       ["stockNameInput", "stockCategoryInput", "stockQtyInput", "stockMinInput", "stockCostInput"].forEach((id) => {
         const el = document.getElementById(id);
         if (el) el.value = "";
       });
       const unit = document.getElementById("stockUnitInput");
       if (unit) unit.value = "un";
+      const title = document.getElementById("stockFormTitle");
+      if (title) title.textContent = "Cadastro de estoque";
+      const btn = document.getElementById("stockSaveBtn");
+      if (btn) btn.textContent = "Salvar item de estoque";
     }
 
     async function saveStockItem() {
@@ -2704,12 +2753,18 @@
         return;
       }
 
-      let item = stockItems.find((i) => i.name.toLowerCase() === name.toLowerCase());
-      if (item) {
-        Object.assign(item, { category, unit, qty, min, cost });
+      let item;
+      if (editingStockItemId) {
+        item = stockItems.find((i) => i.id === editingStockItemId);
+        if (item) Object.assign(item, { name, category, unit, qty, min, cost });
       } else {
-        item = { id: `stock-${Date.now()}`, name, category, unit, qty, min, cost };
-        stockItems.push(item);
+        item = stockItems.find((i) => i.name.toLowerCase() === name.toLowerCase());
+        if (item) {
+          Object.assign(item, { category, unit, qty, min, cost });
+        } else {
+          item = { id: `stock-${Date.now()}`, name, category, unit, qty, min, cost };
+          stockItems.push(item);
+        }
       }
       saveStockItems();
       clearStockForm();
@@ -2717,6 +2772,23 @@
       try {
         await apiPost({ action: "saveStockItem", id: item.id, name: item.name, category: item.category, unit: item.unit, qty: item.qty, min: item.min, cost: item.cost });
       } catch (e) { console.warn("Sync estoque:", e); }
+    }
+
+    function startEditStockItem(id) {
+      const item = stockItems.find((s) => String(s.id) === String(id));
+      if (!item) return;
+      editingStockItemId = id;
+      document.getElementById("stockNameInput").value = item.name;
+      document.getElementById("stockCategoryInput").value = item.category || "";
+      document.getElementById("stockUnitInput").value = item.unit || "un";
+      document.getElementById("stockQtyInput").value = item.qty;
+      document.getElementById("stockMinInput").value = item.min;
+      document.getElementById("stockCostInput").value = item.cost;
+      const title = document.getElementById("stockFormTitle");
+      if (title) title.textContent = "Editar item de estoque";
+      const btn = document.getElementById("stockSaveBtn");
+      if (btn) btn.textContent = "Salvar edição";
+      document.getElementById("stockNameInput")?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
     async function adjustStockQty(id, delta) {
@@ -2772,6 +2844,7 @@
               <span class="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">${moneyBRL(Number(item.cost || 0))}</span>
               <button onclick="adjustStockQty('${item.id}', 1)" class="rounded-lg bg-emerald-600 px-3 py-1 font-semibold text-white">+1</button>
               <button onclick="adjustStockQty('${item.id}', -1)" class="rounded-lg bg-amber-600 px-3 py-1 font-semibold text-white">-1</button>
+              <button onclick="startEditStockItem('${item.id}')" class="rounded-lg bg-sky-600 px-3 py-1 font-semibold text-white">Editar</button>
               <button onclick="removeStockItem('${item.id}')" class="rounded-lg bg-red-600 px-3 py-1 font-semibold text-white">Remover</button>
             </div>
           </li>
