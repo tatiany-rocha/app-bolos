@@ -203,7 +203,7 @@
       <div class="flex items-center gap-2 flex-shrink-0">
         <div id="syncIndicator" class="hidden items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white">
           <i data-lucide="refresh-cw" class="h-3.5 w-3.5 animate-spin"></i>
-          <span id="syncIndicatorText">Sincronizando</span>
+          <span id="syncIndicatorText">Updating</span>
         </div>
         <button id="syncOrdersBtn" onclick="syncAdminOrders()" class="p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors" title="Atualizar dados">
           <i data-lucide="refresh-cw" class="h-4 w-4"></i>
@@ -803,7 +803,7 @@
                     <input id="stockUnitInput" type="text" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="Unidade" value="un" />
                     <input id="stockQtyInput" type="number" min="0" step="0.01" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="Estoque atual" />
                     <input id="stockMinInput" type="number" min="0" step="0.01" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="Estoque mínimo" />
-                    <input id="stockCostInput" type="number" min="0" step="0.01" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="Custo unitário" />
+                    <input id="stockCostInput" type="text" inputmode="decimal" oninput="moneyMask(this)" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="0,00" />
                   </div>
                   <button id="stockSaveBtn" onclick="saveStockItem()" class="w-full px-4 py-3 rounded-lg bg-slate-900 hover:bg-slate-700 text-white text-sm font-bold transition-colors">Salvar item de estoque</button>
                 </article>
@@ -840,7 +840,7 @@
                     </div>
                     <div>
                       <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Preço</label>
-                      <input id="menuPriceInput" type="number" min="0" step="0.01" class="w-full p-3 border border-slate-300 rounded-lg focus:border-rose-400 focus:ring-2 focus:ring-rose-100 transition-all" placeholder="0,00" />
+                      <input id="menuPriceInput" type="text" inputmode="decimal" oninput="moneyMask(this)" class="w-full p-3 border border-slate-300 rounded-lg focus:border-rose-400 focus:ring-2 focus:ring-rose-100 transition-all" placeholder="0,00" />
                     </div>
                   </div>
                   <button id="menuSaveBtn" onclick="saveMenuItem()" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white text-sm font-bold shadow-md hover:shadow-lg transition-all">Adicionar item</button>
@@ -860,16 +860,27 @@
                     <i data-lucide="file-text" class="h-4 w-4 text-slate-600"></i>
                     Orçamentos
                   </h3>
-              <div class="grid sm:grid-cols-2 gap-3">
-                <input id="quoteClientInput" type="text" class="w-full p-3 border border-slate-300 rounded-lg focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all" placeholder="Nome do cliente" />
-                <input id="quoteValueInput" type="number" min="0" step="0.01" class="w-full p-3 border border-slate-300 rounded-lg focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all" placeholder="Valor (R$)" />
+              <input id="quoteClientInput" type="text" class="w-full p-3 border border-slate-300 rounded-lg focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all" placeholder="Nome do cliente" />
+
+              <!-- Cardápio para o orçamento -->
+              <div>
+                <p class="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Itens do orçamento — clique para adicionar</p>
+                <div id="quoteMenuGrid" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+                <div class="mt-3 space-y-2">
+                  <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Itens selecionados</p>
+                  <ul id="quoteItemsList"></ul>
+                  <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-rose-50 border border-rose-100">
+                    <span class="text-sm font-bold text-slate-700">Total</span>
+                    <span id="quoteTotalDisplay" class="text-sm font-black text-rose-600">R$ 0,00</span>
+                  </div>
+                </div>
               </div>
+
               <div class="grid sm:grid-cols-2 gap-3">
                 <input id="quoteDueDateInput" type="date" class="w-full p-3 border border-slate-300 rounded-lg focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all" />
                 <input id="quotePaymentMethodsInput" type="text" class="w-full p-3 border border-slate-300 rounded-lg focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all" placeholder="Formas de pagamento" />
               </div>
-              <textarea id="quoteDescriptionInput" rows="2" class="w-full p-3 border border-slate-300 rounded-lg focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all" placeholder="Descrição do orçamento"></textarea>
-              <textarea id="quoteNotesInput" rows="2" class="w-full p-3 border border-slate-300 rounded-lg focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all" placeholder="Observações"></textarea>
+              <textarea id="quoteNotesInput" rows="2" class="w-full p-3 border border-slate-300 rounded-lg focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all" placeholder="Observações (opcional)"></textarea>
               <div class="grid sm:grid-cols-2 gap-3">
                 <select id="quoteStatusInput" class="w-full p-3 border border-slate-300 rounded-lg focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all text-sm">
                   <option value="aberto">Status: Aberto</option>
@@ -908,7 +919,7 @@
                   <option value="entrada">Entrada</option>
                   <option value="saida">Saída</option>
                 </select>
-                <input id="cashValueInput" type="number" min="0" step="0.01" class="w-full p-3 border border-slate-300 rounded-lg text-sm xl:order-4" placeholder="Valor (R$)" />
+                <input id="cashValueInput" type="text" inputmode="decimal" oninput="moneyMask(this)" class="w-full p-3 border border-slate-300 rounded-lg text-sm xl:order-4" placeholder="0,00" />
                 <input id="cashDescriptionInput" type="text" class="w-full p-3 border border-slate-300 rounded-lg text-sm col-span-2 xl:col-span-2 xl:order-2" placeholder="Descrição" />
                 <input id="cashDateInput" type="date" class="w-full p-3 border border-slate-300 rounded-lg text-sm col-span-2 xl:col-span-1 xl:order-5" />
               </div>
@@ -1051,7 +1062,7 @@
                 </select>
                 <input id="matQtyInput" type="number" min="0" step="0.01" oninput="updateMatCalcUnitCost()" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="Qtd disponível" />
                 <input id="matQtyPurchasedInput" type="number" min="0" step="0.01" oninput="updateMatCalcUnitCost()" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="Qtd comprada" />
-                <input id="matTotalPaidInput" type="number" min="0" step="0.01" oninput="updateMatCalcUnitCost()" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="Total pago (R$)" />
+                <input id="matTotalPaidInput" type="text" inputmode="decimal" oninput="moneyMask(this);updateMatCalcUnitCost()" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="0,00" />
               </div>
               <div class="flex items-center gap-3">
                 <p id="matCalcUnitCost" class="text-sm text-slate-500 flex-1">Custo unitário calculado: <strong>&mdash;</strong></p>
@@ -1091,7 +1102,7 @@
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Mão de obra (R$)</label>
-                  <input id="recipeLaborInput" type="number" min="0" step="0.01" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="Ex: 50,00" />
+                  <input id="recipeLaborInput" type="text" inputmode="decimal" oninput="moneyMask(this)" class="w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="0,00" />
                 </div>
               </div>
               <div class="rounded-lg bg-slate-50 border border-slate-200 p-4 space-y-3">
@@ -1242,7 +1253,7 @@
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Preço Unitário</label>
-              <input id="cakePrice" type="number" min="0" step="0.01" class="w-full p-3 border border-slate-300 rounded-lg focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-all" placeholder="0,00" />
+              <input id="cakePrice" type="text" inputmode="decimal" oninput="moneyMask(this)" class="w-full p-3 border border-slate-300 rounded-lg focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-all" placeholder="0,00" />
             </div>
           </div>
           <div>
@@ -1273,7 +1284,7 @@
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Taxa de Entrega</label>
-              <input id="deliveryFee" type="number" step="0.01" min="0" value="0" oninput="renderTotals()" class="w-full p-3 border border-slate-300 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all" />
+              <input id="deliveryFee" type="text" inputmode="decimal" oninput="moneyMask(this);renderTotals()" class="w-full p-3 border border-slate-300 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all" placeholder="0,00" />
             </div>
             <div>
               <p class="text-xs font-bold text-slate-700 uppercase tracking-wide">Total Final</p>
@@ -1293,7 +1304,7 @@
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Sinal (Entrada)</label>
-              <input id="downPayment" type="number" min="0" step="0.01" value="0" class="w-full p-3 border border-slate-300 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all" placeholder="0,00" />
+              <input id="downPayment" type="text" inputmode="decimal" oninput="moneyMask(this)" class="w-full p-3 border border-slate-300 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all" placeholder="0,00" />
             </div>
           </div>
           <div class="grid sm:grid-cols-3 gap-3 pt-3">
@@ -1357,7 +1368,7 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1 uppercase tracking-wide">Valor total pago (R$)</label>
-            <input id="purchaseTotalPaidInput" type="number" min="0" step="0.01" placeholder="Ex: 18.50" oninput="updatePurchasePreview()"
+            <input id="purchaseTotalPaidInput" type="text" inputmode="decimal" oninput="moneyMask(this);updatePurchasePreview()" placeholder="0,00"
               class="w-full p-3 border border-slate-300 rounded-xl focus:border-violet-400 focus:ring-2 focus:ring-violet-100 text-sm transition-all" />
           </div>
         </div>
@@ -1641,7 +1652,7 @@
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Valor Pago Agora</label>
-          <input id="pmPaidNow" type="number" min="0" step="0.01" oninput="renderInstallmentsInputs()" class="w-full p-3 border border-slate-300 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all" />
+          <input id="pmPaidNow" type="text" inputmode="decimal" oninput="moneyMask(this);renderInstallmentsInputs()" class="w-full p-3 border border-slate-300 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all" placeholder="0,00" />
         </div>
         <div id="pmInstallmentsWrap" class="hidden space-y-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
           <div class="grid sm:grid-cols-2 gap-3">
@@ -1844,11 +1855,27 @@
     }
 
     function parseNumber(id) {
-      const value = Number(String(document.getElementById(id).value || "0").replace(",", "."));
+      const raw = String(document.getElementById(id)?.value || "0");
+      const normalized = raw.replace(/R\$\s*/g, "").replace(/\./g, "").replace(",", ".");
+      const value = Number(normalized);
       return Number.isFinite(value) ? value : 0;
     }
 
-    function setSyncIndicator(active, text = "Sincronizando dados") {
+    function moneyMask(input) {
+      const digits = input.value.replace(/\D/g, "").slice(0, 10);
+      if (!digits) { input.value = ""; return; }
+      const cents = parseInt(digits, 10);
+      input.value = "R$ " + (cents / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function setMoneyInput(id, value) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const num = Number(value) || 0;
+      el.value = num > 0 ? "R$ " + num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "";
+    }
+
+    function setSyncIndicator(active, text = "Updating") {
       const indicator = document.getElementById("syncIndicator");
       const indicatorText = document.getElementById("syncIndicatorText");
       if (!indicator || !indicatorText) return;
@@ -1861,7 +1888,7 @@
       const isAppsScript = String(url || "").includes(APPS_SCRIPT_URL);
       if (isAppsScript) {
         syncInFlightCount += 1;
-        setSyncIndicator(true, "Sincronizando dados");
+        setSyncIndicator(true, "Updating");
       }
       try {
         return await fetch(url, options);
@@ -2045,6 +2072,8 @@
       }
       if (view === "quotes") {
         loadQuotesFromApi(true);
+        renderQuoteMenu();
+        renderQuoteItemsList();
       }
       if (view === "payments") {
         loadPendingPayments();
@@ -2182,7 +2211,7 @@
 
     function getSuggestedInstallmentAmounts() {
       const total = Number(document.getElementById("pmOrderTotal").value || 0);
-      const paidNow = Number(document.getElementById("pmPaidNow").value || 0);
+      const paidNow = parseNumber("pmPaidNow");
       const count = Math.max(2, parseInt(document.getElementById("pmInstallmentsCount").value, 10) || 2);
       const remaining = Math.max(total - paidNow, 0);
       const remainingCents = Math.round(remaining * 100);
@@ -2206,8 +2235,8 @@
           <div class="grid sm:grid-cols-3 gap-2 border border-slate-200 rounded-lg p-2">
             <p class="text-xs font-semibold text-slate-600 sm:col-span-3">Parcela ${i}</p>
             <input id="instDue_${i}" type="date" class="p-2 border border-slate-300 rounded-lg" />
-            <input id="instAmount_${i}" type="number" min="0" step="0.01" value="${suggestedAmounts[i - 1] || "0.00"}" placeholder="Valor" class="p-2 border border-slate-300 rounded-lg" />
-            <input id="instPaid_${i}" type="number" min="0" step="0.01" placeholder="Pago agora (opcional)" class="p-2 border border-slate-300 rounded-lg" />
+            <input id="instAmount_${i}" type="text" inputmode="decimal" oninput="moneyMask(this)" value="${suggestedAmounts[i - 1] ? (parseFloat(suggestedAmounts[i - 1]) / 1).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''}" placeholder="0,00" class="p-2 border border-slate-300 rounded-lg" />
+            <input id="instPaid_${i}" type="text" inputmode="decimal" oninput="moneyMask(this)" placeholder="0,00" class="p-2 border border-slate-300 rounded-lg" />
           </div>
         `);
       }
@@ -2217,8 +2246,8 @@
     function openPaymentModal(order) {
       paymentOrderContext = order;
       document.getElementById("pmType").value = "avista";
-      document.getElementById("pmOrderTotal").value = Number(order.total || 0).toFixed(2);
-      document.getElementById("pmPaidNow").value = Number(order.total || 0).toFixed(2);
+      setMoneyInput("pmOrderTotal", order.total || 0);
+      setMoneyInput("pmPaidNow", order.total || 0);
       document.getElementById("pmInstallmentsCount").value = 2;
       document.getElementById("pmInstallmentsList").innerHTML = "";
       document.getElementById("paymentModal").classList.remove("hidden");
@@ -2234,7 +2263,7 @@
       if (!paymentOrderContext) return;
       const type = document.getElementById("pmType").value;
       const orderTotal = Number(paymentOrderContext.total || 0);
-      const paidNow = Number(document.getElementById("pmPaidNow").value || 0);
+      const paidNow = parseNumber("pmPaidNow");
       let installments = [];
 
       if (type === "avista") {
@@ -2250,8 +2279,8 @@
         const count = Math.max(2, parseInt(document.getElementById("pmInstallmentsCount").value, 10) || 2);
         for (let i = 1; i <= count; i += 1) {
           const dueDate = document.getElementById(`instDue_${i}`).value;
-          const amount = Number(document.getElementById(`instAmount_${i}`).value || 0);
-          const paidAmount = Number(document.getElementById(`instPaid_${i}`).value || 0);
+          const amount = parseNumber(`instAmount_${i}`);
+          const paidAmount = parseNumber(`instPaid_${i}`);
           if (!dueDate || amount <= 0) {
             showAlertModal("Preencha data e valor de todas as parcelas.");
             return;
@@ -3170,6 +3199,21 @@
         _customState: { ...customizationState, extras: { ...customizationState.extras }, _rawNotes: notes }
       };
 
+      if (quoteBuilderMode) {
+        quoteBuilderMode = false;
+        quoteSelectedItems.push({
+          nome: cartItem.name,
+          preco: cartItem.unitPrice,
+          quantity: cartItem.quantity,
+          size: cartItem.size,
+          complements: cartItem.complements,
+          notes: cartItem.notes
+        });
+        closeCustomizationModal();
+        renderQuoteItemsList();
+        return;
+      }
+
       const wasEditing = editingClientItemIndex >= 0 && !!clientCart[editingClientItemIndex];
       if (wasEditing) {
         Object.assign(clientCart[editingClientItemIndex], cartItem);
@@ -3507,7 +3551,7 @@
       editingMenuItemId = "";
       document.getElementById("menuNameInput").value = "";
       document.getElementById("menuDescInput").value = "";
-      document.getElementById("menuPriceInput").value = "";
+      setMoneyInput("menuPriceInput", 0);
       document.getElementById("menuSaveBtn").textContent = "Adicionar item";
     }
 
@@ -3515,7 +3559,7 @@
       editingMenuItemId = String(item.id || "");
       document.getElementById("menuNameInput").value = item.nome || "";
       document.getElementById("menuDescInput").value = item.descricao || "";
-      document.getElementById("menuPriceInput").value = String(item.preco || "");
+      setMoneyInput("menuPriceInput", item.preco || 0);
       document.getElementById("menuSaveBtn").textContent = "Salvar edição";
     }
 
@@ -3593,7 +3637,7 @@
       const unit = document.getElementById("stockUnitInput")?.value.trim() || "un";
       const qty = Number(document.getElementById("stockQtyInput")?.value || 0);
       const min = Number(document.getElementById("stockMinInput")?.value || 0);
-      const cost = Number(document.getElementById("stockCostInput")?.value || 0);
+      const cost = parseNumber("stockCostInput");
       if (!name) {
         showAlertModal("Informe o nome do produto do estoque.");
         return;
@@ -3629,7 +3673,7 @@
       document.getElementById("stockUnitInput").value = item.unit || "un";
       document.getElementById("stockQtyInput").value = item.qty;
       document.getElementById("stockMinInput").value = item.min;
-      document.getElementById("stockCostInput").value = item.cost;
+      setMoneyInput("stockCostInput", item.cost);
       const title = document.getElementById("stockFormTitle");
       if (title) title.textContent = "Editar item de estoque";
       const btn = document.getElementById("stockSaveBtn");
@@ -3726,7 +3770,7 @@
     async function saveMenuItem() {
       const nome = document.getElementById("menuNameInput").value.trim();
       const descricao = document.getElementById("menuDescInput").value.trim();
-      const preco = Number(document.getElementById("menuPriceInput").value || 0);
+      const preco = parseNumber("menuPriceInput");
       if (!nome || preco <= 0) {
         showAlertModal("Informe nome e preço válidos para o item.");
         return;
@@ -3772,35 +3816,151 @@
       }
     }
 
+    let quoteSelectedItems = [];
+    let quoteBuilderMode = false;
+    let quoteItemsCache = JSON.parse(localStorage.getItem("quoteItemsCache") || "{}");
+
+    function renderQuoteMenu() {
+      const grid = document.getElementById("quoteMenuGrid");
+      if (!grid) return;
+      if (!menuItems.length) {
+        grid.innerHTML = '<p class="text-xs text-slate-400">Cardápio vazio.</p>';
+        return;
+      }
+      grid.innerHTML = menuItems.map((item, index) => {
+        const hasCustom = !!item.customization?.enabled;
+        const price = Number(item.preco || 0);
+        const priceLabel = hasCustom && price === 0
+          ? `<span class="text-xs font-black text-violet-600">A partir de R$&nbsp;80</span>`
+          : `<span class="text-xs font-black text-rose-600">${moneyBRL(price)}</span>`;
+        return `
+          <article onclick="openQuoteOrderBox(${index})" class="bg-white rounded-xl border border-slate-200 active:bg-slate-50 cursor-pointer transition-colors overflow-hidden">
+            <div class="flex items-center gap-3 p-3">
+              <div class="flex-shrink-0 h-12 w-12 rounded-xl flex items-center justify-center" style="background:${hasCustom ? "linear-gradient(135deg,#f5f3ff,#ede9fe)" : "linear-gradient(135deg,#fff1f2,#fce7f3)"};">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${hasCustom ? "#8b5cf6" : "#f43f5e"}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v8"/><path d="M8 21V13"/><path d="M12 21V13"/><path d="M16 21V13"/><path d="M3 9l9-7 9 7"/><path d="M1 9h22"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-bold text-slate-800 text-sm leading-snug line-clamp-1">${escapeHtml(item.nome)}</h3>
+                ${item.descricao ? `<p class="text-xs text-slate-500 line-clamp-1">${escapeHtml(item.descricao)}</p>` : ""}
+                <div class="mt-0.5">${priceLabel}</div>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M12 5v14M5 12h14"/></svg>
+            </div>
+          </article>`;
+      }).join("");
+    }
+
+    function openQuoteOrderBox(index) {
+      quoteBuilderMode = true;
+      const item = menuItems[index];
+      if (item.customization?.enabled) {
+        openCustomizationModal(item);
+        return;
+      }
+      quoteSelectedItems.push({
+        nome: item.nome,
+        preco: Number(item.preco || 0),
+        quantity: 1,
+        size: "",
+        complements: "",
+        notes: ""
+      });
+      quoteBuilderMode = false;
+      renderQuoteItemsList();
+    }
+
+    function removeQuoteMenuItem(i) {
+      quoteSelectedItems.splice(i, 1);
+      renderQuoteItemsList();
+    }
+
+    function renderQuoteItemsList() {
+      const ul = document.getElementById("quoteItemsList");
+      const totalEl = document.getElementById("quoteTotalDisplay");
+      if (!ul) return;
+      const total = quoteSelectedItems.reduce((s, it) => s + (it.preco * (it.quantity || 1)), 0);
+      if (totalEl) totalEl.textContent = moneyBRL(total);
+      if (!quoteSelectedItems.length) {
+        ul.innerHTML = '<li class="text-xs text-slate-400 py-1">Nenhum item adicionado ainda.</li>';
+        return;
+      }
+      ul.innerHTML = quoteSelectedItems.map((it, i) => {
+        const details = [it.size, it.complements, it.notes].filter(Boolean).join(" | ");
+        return `
+          <li class="rounded-lg border border-slate-200 px-3 py-2 bg-white space-y-0.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-slate-800 text-sm">${it.quantity > 1 ? `${it.quantity}× ` : ""}${escapeHtml(it.nome)}</span>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <span class="font-black text-rose-600 text-sm">${moneyBRL(it.preco * (it.quantity || 1))}</span>
+                <button onclick="removeQuoteMenuItem(${i})" class="text-slate-400 hover:text-red-500 transition-colors text-lg leading-none">&times;</button>
+              </div>
+            </div>
+            ${details ? `<p class="text-xs text-slate-500">${escapeHtml(details)}</p>` : ""}
+          </li>`;
+      }).join("");
+    }
+
     function clearQuoteForm() {
       editingQuoteId = "";
+      quoteSelectedItems = [];
       document.getElementById("quoteClientInput").value = "";
-      document.getElementById("quoteValueInput").value = "";
       document.getElementById("quoteDueDateInput").value = "";
       document.getElementById("quotePaymentMethodsInput").value = "";
-      document.getElementById("quoteDescriptionInput").value = "";
       document.getElementById("quoteNotesInput").value = "";
       document.getElementById("quoteStatusInput").value = "aberto";
       document.getElementById("quoteSaveBtn").textContent = "Adicionar orçamento";
+      renderQuoteItemsList();
     }
 
     function fillQuoteForm(quote) {
       editingQuoteId = String(quote.id || "");
+      quoteSelectedItems = getQuoteItems(quote).map(it => ({
+        nome: it.nome || "",
+        preco: Number(it.preco || 0),
+        quantity: it.quantity || 1,
+        size: it.size || "",
+        complements: it.complements || "",
+        notes: it.notes || ""
+      }));
       document.getElementById("quoteClientInput").value = quote.cliente || "";
-      document.getElementById("quoteValueInput").value = Number(quote.valor || 0).toFixed(2);
       document.getElementById("quoteDueDateInput").value = String(quote.prazoEntrega || "");
       document.getElementById("quotePaymentMethodsInput").value = quote.formasPagamento || "";
-      document.getElementById("quoteDescriptionInput").value = quote.descricao || "";
       document.getElementById("quoteNotesInput").value = quote.observacoes || "";
       document.getElementById("quoteStatusInput").value = String(quote.status || "aberto");
       document.getElementById("quoteSaveBtn").textContent = "Salvar orçamento";
+      renderQuoteItemsList();
     }
 
     function startEditQuoteItem(id) {
       const quote = adminQuoteItems.find((q) => String(q.id) === String(id));
       if (!quote) return;
-      fillQuoteForm(quote);
       setAdminView("quotes");
+      // preenche APÓS setAdminView para garantir que os elementos já estão visíveis
+      setTimeout(() => {
+        fillQuoteForm(quote);
+        renderQuoteItemsList();
+      }, 0);
+    }
+
+    function getQuoteItems(quote) {
+      // 1. API retornou o array de itens
+      if (Array.isArray(quote.items) && quote.items.length) return quote.items;
+      // 2. Cache local (salvo ao criar/editar)
+      const cached = quoteItemsCache[String(quote.id)] || [];
+      if (cached.length) return cached;
+      // 3. Fallback: parseia o campo descricao (formato "Nome: R$ 80,00 | Nome2: R$ 60,00")
+      if (quote.descricao) {
+        return quote.descricao.split(" | ").map(part => {
+          const m = part.match(/^(.+):\s*R\$\s*([\d.,]+)$/);
+          if (m) {
+            const nome = m[1].trim();
+            const preco = parseFloat(m[2].replace(/\./g, "").replace(",", ".")) || 0;
+            return { nome, preco, quantity: 1, size: "", complements: "", notes: "" };
+          }
+          return { nome: part.trim(), preco: 0, quantity: 1, size: "", complements: "", notes: "" };
+        }).filter(it => it.nome);
+      }
+      return [];
     }
 
     function renderAdminQuotesManager(items = []) {
@@ -3822,20 +3982,26 @@
               ? "bg-sky-100 text-sky-700 border-sky-200"
               : "bg-amber-100 text-amber-700 border-amber-200";
 
+        const qItems = getQuoteItems(quote);
         return `
           <li class="rounded-lg border border-slate-200 p-3 flex flex-col gap-3">
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div class="space-y-1">
-                <p class="font-semibold text-sm text-slate-800">${quote.cliente || "Cliente não informado"}</p>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="font-semibold text-sm text-slate-800">${quote.cliente || "Cliente não informado"}</p>
+                  ${qItems.length ? `<span class="text-[10px] font-bold bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full">${qItems.length} item${qItems.length > 1 ? "s" : ""}</span>` : ""}
+                </div>
                 <p class="text-xs text-slate-500">Prazo: ${formatDueDateShort(quote.prazoEntrega)}</p>
                 <p class="text-xs font-semibold text-rose-700">${moneyBRL(Number(quote.valor || 0))}</p>
               </div>
               <span class="px-2 py-1 rounded-full text-[11px] font-semibold border ${statusStyle}">${statusLabel}</span>
             </div>
             <div class="text-xs text-slate-600 space-y-1">
-              <p><span class="font-semibold">Conteúdo:</span> ${quote.descricao || "Sem descrição"}</p>
+              ${qItems.length
+                ? `<ul class="space-y-0.5">${qItems.map(it => `<li class="flex justify-between gap-2"><span class="font-medium">${escapeHtml(it.nome)}${it.size ? ` <span class="text-slate-400">(${escapeHtml(it.size)})</span>` : ""}</span><span class="font-semibold text-rose-600">${moneyBRL(it.preco * (it.quantity || 1))}</span></li>`).join("")}</ul>`
+                : `<p class="text-slate-400 italic">Sem itens registrados</p>`}
               <p><span class="font-semibold">Pagamento:</span> ${quote.formasPagamento || "-"}</p>
-              <p><span class="font-semibold">Observações:</span> ${quote.observacoes || "-"}</p>
+              ${quote.observacoes ? `<p><span class="font-semibold">Observações:</span> ${quote.observacoes}</p>` : ""}
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2">
               <p class="text-[11px] text-slate-400">Criado em ${formatDateTimeForUi(quote.createdAt)}</p>
@@ -3865,30 +4031,36 @@
 
     async function saveQuoteItem() {
       const cliente = document.getElementById("quoteClientInput").value.trim();
-      const valor = Number(document.getElementById("quoteValueInput").value || 0);
       const prazoEntrega = document.getElementById("quoteDueDateInput").value;
       const formasPagamento = document.getElementById("quotePaymentMethodsInput").value.trim();
-      const descricao = document.getElementById("quoteDescriptionInput").value.trim();
       const observacoes = document.getElementById("quoteNotesInput").value.trim();
       const status = document.getElementById("quoteStatusInput").value.trim() || "aberto";
+      const valor = quoteSelectedItems.reduce((s, it) => s + it.preco * (it.quantity || 1), 0);
+      const descricao = quoteSelectedItems.map(it => `${it.nome}: ${moneyBRL(it.preco)}`).join(" | ");
 
-      if (!cliente || valor <= 0 || !prazoEntrega || !formasPagamento || !descricao) {
-        showAlertModal("Preencha cliente, valor, descrição, prazo e formas de pagamento.");
+      if (!cliente || !quoteSelectedItems.length || !prazoEntrega || !formasPagamento) {
+        showAlertModal("Preencha cliente, pelo menos 1 item do cardápio, prazo e formas de pagamento.");
         return;
       }
 
-      const action = editingQuoteId ? "updateQuote" : "addQuote";
+      // Captura antes de qualquer operação async que possa limpar o estado
+      const capturedEditId = editingQuoteId;
+      const capturedItems = quoteSelectedItems.map(it => ({ ...it }));
+      const capturedCliente = cliente;
+
+      const action = capturedEditId ? "updateQuote" : "addQuote";
       const payload = {
         action,
         cliente,
         valor,
+        items: capturedItems,
         prazoEntrega,
         formasPagamento,
         descricao,
         observacoes,
         status
       };
-      if (editingQuoteId) payload.id = editingQuoteId;
+      if (capturedEditId) payload.id = capturedEditId;
 
       try {
         const response = await trackedFetch(APPS_SCRIPT_URL, {
@@ -3901,8 +4073,28 @@
           showAlertModal("Não foi possível salvar o orçamento.");
           return;
         }
+
+        // Salva no cache pelo ID vindo da API ou pelo ID de edição já conhecido
+        const idFromApi = String(data.id || data.quoteId || "");
+        const cacheId = idFromApi || capturedEditId;
+        if (cacheId) {
+          quoteItemsCache[cacheId] = capturedItems;
+          localStorage.setItem("quoteItemsCache", JSON.stringify(quoteItemsCache));
+        }
+
         clearQuoteForm();
         await loadQuotesFromApi(true);
+
+        // Fallback: se a API não devolveu ID, localiza pelo cliente e data mais recente
+        if (!cacheId) {
+          const match = [...adminQuoteItems]
+            .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+            .find(q => q.cliente === capturedCliente);
+          if (match) {
+            quoteItemsCache[String(match.id)] = capturedItems;
+            localStorage.setItem("quoteItemsCache", JSON.stringify(quoteItemsCache));
+          }
+        }
       } catch (error) {
         showAlertModal("Erro ao salvar orçamento.");
       }
@@ -3922,6 +4114,8 @@
           showAlertModal("Não foi possível remover o orçamento.");
           return;
         }
+        delete quoteItemsCache[String(id)];
+        localStorage.setItem("quoteItemsCache", JSON.stringify(quoteItemsCache));
         if (String(editingQuoteId) === String(id)) {
           clearQuoteForm();
         }
@@ -3984,7 +4178,10 @@
       const status = String(quote.status || "aberto").toUpperCase();
       const prazo = formatDueDateShort(quote.prazoEntrega);
       const paymentMethods = quote.formasPagamento || "-";
-      const descricao = quote.descricao || "-";
+      const items = Array.isArray(quote.items) && quote.items.length
+        ? quote.items
+        : (quote.descricao ? [{ nome: quote.descricao, preco: 0 }] : []);
+      const descricao = items.map(it => `• ${it.nome}${it.preco > 0 ? " — " + moneyBRL(it.preco) : ""}`).join("\n") || "-";
       const observacoes = quote.observacoes || "-";
 
       const measurementCanvas = document.createElement("canvas");
@@ -4511,7 +4708,7 @@
       syncButton.disabled = true;
       if (syncLabel) syncLabel.textContent = "Atualizando";
       if (indicator && indicatorText) {
-        indicatorText.textContent = "Sincronizando dados";
+        indicatorText.textContent = "Updating";
         indicator.classList.remove("hidden");
         indicator.classList.add("flex");
       }
@@ -4622,8 +4819,8 @@
         document.getElementById(id).value = "";
       });
       document.getElementById("deliveryType").value = "retirada";
-      document.getElementById("deliveryFee").value = 0;
-      document.getElementById("downPayment").value = 0;
+      setMoneyInput("deliveryFee", 0);
+      setMoneyInput("downPayment", 0);
       toggleAddress();
       clearCakeForm();
     }
@@ -4988,7 +5185,7 @@
     async function saveCashMovement() {
       const type = document.getElementById("cashTypeInput")?.value || "entrada";
       const description = document.getElementById("cashDescriptionInput")?.value.trim();
-      const value = Number(document.getElementById("cashValueInput")?.value || 0);
+      const value = parseNumber("cashValueInput");
       const date = document.getElementById("cashDateInput")?.value || new Date().toISOString().slice(0, 10);
       if (!description || value <= 0) {
         showAlertModal("Informe descrição e valor para lançar no caixa.");
@@ -5971,7 +6168,7 @@
 
     function updateMatCalcUnitCost() {
       const qty = Number(document.getElementById("matQtyPurchasedInput")?.value || 0);
-      const total = Number(document.getElementById("matTotalPaidInput")?.value || 0);
+      const total = parseNumber("matTotalPaidInput");
       const unit = document.getElementById("matUnitInput")?.value || "";
       const el = document.getElementById("matCalcUnitCost");
       if (!el) return;
@@ -5987,7 +6184,7 @@
       const unit = document.getElementById("matUnitInput")?.value || "kg";
       const qtyAvailable = Number(document.getElementById("matQtyInput")?.value || 0);
       const qtyPurchased = Number(document.getElementById("matQtyPurchasedInput")?.value || 0);
-      const totalPaid = Number(document.getElementById("matTotalPaidInput")?.value || 0);
+      const totalPaid = parseNumber("matTotalPaidInput");
       if (!name) { showAlertModal("Informe o nome do ingrediente."); return; }
       const unitCost = qtyPurchased > 0 ? totalPaid / qtyPurchased : 0;
       let item;
@@ -6019,7 +6216,7 @@
       document.getElementById("matUnitInput").value = item.unit;
       document.getElementById("matQtyInput").value = item.qtyAvailable;
       document.getElementById("matQtyPurchasedInput").value = item.qtyPurchased;
-      document.getElementById("matTotalPaidInput").value = item.totalPaid;
+      setMoneyInput("matTotalPaidInput", item.totalPaid);
       const title = document.getElementById("matFormTitle");
       if (title) title.textContent = "Editar Ingrediente";
       const btn = document.getElementById("matSaveBtn");
@@ -6078,7 +6275,7 @@
       const mat = rawMaterials.find(m => m.id === purchasingMaterialId);
       if (!mat) return;
       const newQty = Number(document.getElementById("purchaseQtyInput").value) || 0;
-      const newTotal = Number(document.getElementById("purchaseTotalPaidInput").value) || 0;
+      const newTotal = parseNumber("purchaseTotalPaidInput");
       const preview = document.getElementById("purchasePreview");
       if (newQty <= 0 || newTotal <= 0) { preview.classList.add("hidden"); return; }
       const newUnitCost = newTotal / newQty;
@@ -6100,7 +6297,7 @@
       const mat = rawMaterials.find(m => m.id === purchasingMaterialId);
       if (!mat) return;
       const newQty = Number(document.getElementById("purchaseQtyInput").value) || 0;
-      const newTotal = Number(document.getElementById("purchaseTotalPaidInput").value) || 0;
+      const newTotal = parseNumber("purchaseTotalPaidInput");
       if (newQty <= 0 || newTotal <= 0) {
         showAlertModal("Informe a quantidade e o valor pago.");
         return;
@@ -6254,7 +6451,7 @@
 
     async function saveRecipe() {
       const cakeName = document.getElementById("recipeCakeSelect")?.value;
-      const laborCost = Number(document.getElementById("recipeLaborInput")?.value || 0);
+      const laborCost = parseNumber("recipeLaborInput");
       if (!cakeName) { showAlertModal("Selecione o bolo para a receita."); return; }
       if (!currentRecipeIngredients.length) { showAlertModal("Adicione pelo menos um ingrediente à receita."); return; }
       const ingredients = [...currentRecipeIngredients];
