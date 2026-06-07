@@ -185,6 +185,20 @@
     html.dark article.bg-white           { background:#1e293b !important; border-color:#334155 !important; }
     html.dark article .bg-slate-50       { background:#0f172a !important; }
 
+    /* loyalty section */
+    html.dark .loyalty-teaser            { background:linear-gradient(135deg,#1e1525,#1a0f1e) !important; border-color:#4c1d31 !important; }
+    html.dark .loyalty-teaser p.lty-title { color:#f1f5f9 !important; }
+    html.dark .loyalty-teaser p.lty-sub   { color:#94a3b8 !important; }
+    html.dark .loyalty-stat-card         { background:#1e293b !important; border-color:#334155 !important; }
+    html.dark .loyalty-stat-card p       { color:#f1f5f9 !important; }
+    html.dark .loyalty-stat-card p.lty-label { color:#64748b !important; }
+    html.dark .loyalty-progress-card     { background:#1e293b !important; border-color:#334155 !important; }
+    html.dark .loyalty-progress-card p   { color:#cbd5e1 !important; }
+    html.dark .loyalty-prize-locked      { background:#1e293b !important; border-color:#334155 !important; }
+    html.dark .loyalty-prize-locked p    { color:#475569 !important; }
+    html.dark .loyalty-prize-unlocked    { background:#052e16 !important; border-color:#166534 !important; }
+    html.dark .loyalty-rate-note         { color:#475569 !important; }
+
     /* toggle thumb cor */
     html.dark #themeToggleBtn            { background:#6366f1 !important; }
     html.dark #themeThumb                { transform:translateX(28px); }
@@ -1988,18 +2002,8 @@
     let extraGroupsDraft = [];
     let orderDetailTarget = null;
 
-    let menuItems = [
-      { nome: "Bolo Chantininho - Massa Branca", descricao: "Massa branca com chantininho. Toque para personalizar.", preco: 80 },
-      { nome: "Bolo Chocolate Tradicional", descricao: "Massa chocolate, recheio brigadeiro", preco: 95 },
-      { nome: "Bolo Ninho com Morango", descricao: "Massa branca, ninho e morangos frescos", preco: 120 },
-      { nome: "Bolo Red Velvet", descricao: "Massa red velvet e cream cheese", preco: 130 },
-      { nome: "Bolo Prestígio", descricao: "Chocolate com coco cremoso", preco: 110 },
-      { nome: "Bolo Cenoura Gourmet", descricao: "Cenoura com cobertura de chocolate", preco: 90 },
-      { nome: "Bolo Dois Amores", descricao: "Brigadeiro preto e branco", preco: 125 }
-    ].map(item => {
-      const c = menuCustomizations[item.nome] || null;
-      return { ...item, customization: c?.enabled ? c : null };
-    });
+    let menuItems = [];
+    let menuLoading = true;
 
     function moneyBRL(v) {
       return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v || 0);
@@ -3760,7 +3764,22 @@
     function renderMenu() {
       const menuGrid = document.getElementById("menuGrid");
       if (!menuItems.length) {
-        menuGrid.innerHTML = `<p class="text-center py-12 text-slate-400 text-sm">Cardápio indisponível no momento.</p>`;
+        if (menuLoading) {
+          menuGrid.innerHTML = Array(4).fill(0).map(() => `
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden animate-pulse">
+              <div class="flex items-center gap-3 p-3.5">
+                <div class="flex-shrink-0 h-16 w-16 rounded-xl bg-slate-100"></div>
+                <div class="flex-1 space-y-2">
+                  <div class="h-3.5 bg-slate-100 rounded-full w-3/4"></div>
+                  <div class="h-3 bg-slate-100 rounded-full w-full"></div>
+                  <div class="h-3 bg-slate-100 rounded-full w-1/2"></div>
+                </div>
+                <div class="flex-shrink-0 h-9 w-9 rounded-xl bg-slate-100"></div>
+              </div>
+            </div>`).join("");
+        } else {
+          menuGrid.innerHTML = `<p class="text-center py-12 text-slate-400 text-sm">Cardápio indisponível no momento.</p>`;
+        }
         return;
       }
       menuGrid.innerHTML = menuItems.map((item, index) => {
@@ -3994,7 +4013,8 @@
       try {
         const response = await trackedFetch(`${APPS_SCRIPT_URL}?action=getMenu`, { method: "GET" });
         const data = await response.json();
-        if (!data.ok) return;
+        menuLoading = false;
+        if (!data.ok) { renderMenu(); return; }
         const active = Array.isArray(data.activeMenuItems) ? data.activeMenuItems : [];
         menuItems = active.map((item) => {
           const c = menuCustomizations[String(item.id || "")] || menuCustomizations[item.nome] || null;
@@ -4012,6 +4032,8 @@
           renderAdminMenuManager(allItems);
         }
       } catch (error) {
+        menuLoading = false;
+        renderMenu();
       }
     }
 
@@ -4983,11 +5005,11 @@
 
       if (!loggedInClient) {
         sec.innerHTML = `
-          <div class="rounded-2xl overflow-hidden" style="background:linear-gradient(135deg,#fff1f2,#fce7f3);border:1px solid #fecdd3;">
+          <div class="loyalty-teaser rounded-2xl overflow-hidden" style="background:linear-gradient(135deg,#fff1f2,#fce7f3);border:1px solid #fecdd3;">
             <div class="px-4 py-4 text-center">
               <p class="text-2xl mb-1">⭐</p>
-              <p class="font-black text-slate-800 text-sm">Programa de Fidelidade</p>
-              <p class="text-xs text-slate-500 mt-1 mb-3">Crie uma conta para acumular pontos e ganhar prêmios a cada pedido.</p>
+              <p class="lty-title font-black text-slate-800 text-sm">Programa de Fidelidade</p>
+              <p class="lty-sub text-xs text-slate-500 mt-1 mb-3">Crie uma conta para acumular pontos e ganhar prêmios a cada pedido.</p>
               <button onclick="openAuthModal('register')" class="w-full py-2.5 rounded-xl text-white text-xs font-black" style="background:linear-gradient(135deg,#e11d48,#ec4899);">Criar minha conta grátis</button>
             </div>
           </div>`;
@@ -5010,7 +5032,7 @@
       const prizesHtml = sortedPrizes.length ? sortedPrizes.map(p => {
         const unlocked = points >= p.points;
         return `
-          <div class="rounded-2xl p-3 text-center flex flex-col gap-1.5" style="background:${unlocked ? '#f0fdf4' : '#f8fafc'};border:1px solid ${unlocked ? '#bbf7d0' : '#e2e8f0'};">
+          <div class="${unlocked ? 'loyalty-prize-unlocked' : 'loyalty-prize-locked'} rounded-2xl p-3 text-center flex flex-col gap-1.5" style="background:${unlocked ? '#f0fdf4' : '#f8fafc'};border:1px solid ${unlocked ? '#bbf7d0' : '#e2e8f0'};">
             <p class="text-xl leading-none" style="${unlocked ? '' : 'filter:grayscale(1);opacity:.5;'}">${p.icon || '🎁'}</p>
             <p class="text-xs font-bold leading-tight" style="color:${unlocked ? '#166534' : '#94a3b8'};">${escapeHtml(p.label)}</p>
             <p class="text-[10px] font-semibold" style="color:${unlocked ? '#16a34a' : '#cbd5e1'};">${unlocked ? p.points + ' pts' : '🔒 ' + p.points + ' pts'}</p>
@@ -5036,23 +5058,23 @@
 
           <!-- Stats -->
           <div class="grid grid-cols-3 gap-2">
-            <div class="rounded-2xl p-3 text-center bg-white" style="border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,.05);">
+            <div class="loyalty-stat-card rounded-2xl p-3 text-center bg-white" style="border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,.05);">
               <p class="font-black text-rose-600" style="font-size:20px;">${earnedPoints}</p>
-              <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wide mt-0.5">Ganhos</p>
+              <p class="lty-label text-[10px] text-slate-400 font-bold uppercase tracking-wide mt-0.5">Ganhos</p>
             </div>
-            <div class="rounded-2xl p-3 text-center bg-white" style="border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,.05);">
+            <div class="loyalty-stat-card rounded-2xl p-3 text-center bg-white" style="border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,.05);">
               <p class="font-black text-slate-500" style="font-size:20px;">${spentPoints}</p>
-              <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wide mt-0.5">Usados</p>
+              <p class="lty-label text-[10px] text-slate-400 font-bold uppercase tracking-wide mt-0.5">Usados</p>
             </div>
-            <div class="rounded-2xl p-3 text-center bg-white" style="border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,.05);">
+            <div class="loyalty-stat-card rounded-2xl p-3 text-center bg-white" style="border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,.05);">
               <p class="font-black text-slate-800" style="font-size:20px;">${ordersCount}</p>
-              <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wide mt-0.5">Pedidos</p>
+              <p class="lty-label text-[10px] text-slate-400 font-bold uppercase tracking-wide mt-0.5">Pedidos</p>
             </div>
           </div>
 
           <!-- Progresso -->
           ${nextPrize ? `
-          <div class="rounded-2xl p-4 bg-white" style="border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,.05);">
+          <div class="loyalty-progress-card rounded-2xl p-4 bg-white" style="border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,.05);">
             <div class="flex justify-between items-center mb-2">
               <p class="text-xs font-black text-slate-700">Próximo prêmio</p>
               <p class="text-xs text-slate-400">${points}/${nextPrize.points} pts</p>
@@ -5073,7 +5095,7 @@
           </div>
 
           <!-- Info taxa -->
-          <p class="text-center text-[10px] text-slate-400">A cada R$ ${realPerPoint} em pedidos concluídos = 1 ponto</p>
+          <p class="loyalty-rate-note text-center text-[10px] text-slate-400">A cada R$ ${realPerPoint} em pedidos concluídos = 1 ponto</p>
         </div>`;
     }
 
@@ -5089,8 +5111,14 @@
       if (nav) nav.classList.remove("hidden");
       updateClientNavBadges();
       if (tab === "orders") {
-        syncClientOrdersFromDashboard();
-        loadClientOrdersFromApi();
+        if (loggedInClient) {
+          if (remotePendingOrders.length === 0 && remoteCompletedOrders.length === 0) {
+            refreshPendingFromApi().catch(() => {});
+          } else {
+            syncClientOrdersFromDashboard();
+          }
+          loadClientOrdersFromApi();
+        }
       }
       if (tab === "settings") loadClientLoyaltyData();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -5317,9 +5345,16 @@
 
     function logoutClient() {
       loggedInClient = null;
+      clientLoyaltyData = null;
+      clientLoyaltyLastFetch = 0;
       localStorage.removeItem("loggedInClient");
+      clientOrders = [];
+      localStorage.removeItem(CLIENT_ORDERS_KEY);
       updateAuthHeader();
       renderCheckoutIdentity();
+      renderClientOrders();
+      renderClientLoyaltyDashboard(null);
+      updateClientNavBadges();
     }
 
     function syncClientOrdersFromDashboard() {
@@ -5372,6 +5407,9 @@
         localStorage.setItem(CLIENT_ORDERS_KEY, JSON.stringify(clientOrders.slice(0, 50)));
         renderClientOrders();
         updateClientNavBadges();
+        clientLoyaltyData = null;
+        clientLoyaltyLastFetch = 0;
+        loadClientLoyaltyData();
       }
     }
 
@@ -5391,6 +5429,8 @@
             localStorage.setItem(CLIENT_ORDERS_KEY, JSON.stringify(clientOrders.slice(0, 50)));
             renderClientOrders();
             updateClientNavBadges();
+            clientLoyaltyData = null;
+            clientLoyaltyLastFetch = 0;
           }
           // Atualiza status de todos os pedidos da API (pode ter mudado)
           let changed = false;
@@ -5410,13 +5450,14 @@
       } catch (e) {}
     }
 
-    function setLoggedInClient(clientData) {
+    async function setLoggedInClient(clientData) {
       loggedInClient = clientData;
       localStorage.setItem("loggedInClient", JSON.stringify(clientData));
       updateAuthHeader();
       renderCheckoutIdentity();
-      renderClientLoyaltyDashboard(null);
-      loadClientOrdersFromApi();
+      clientLoyaltyData = null;
+      clientLoyaltyLastFetch = 0;
+      await loadClientOrdersFromApi();
       loadClientLoyaltyData(true);
     }
 
@@ -7830,8 +7871,12 @@
     renderClientOrders();
     setTab("cliente");
     updateAuthHeader();
-    if (loggedInClient) { loadClientOrdersFromApi(); loadClientLoyaltyData(); }
-    else renderClientLoyaltyDashboard(null);
+    if (loggedInClient) {
+      loadClientOrdersFromApi();
+      refreshPendingFromApi().then(() => loadClientLoyaltyData()).catch(() => loadClientLoyaltyData());
+    } else {
+      renderClientLoyaltyDashboard(null);
+    }
 
     // ── Toggle sidebar admin ─────────────────────────────────
     let adminSidebarOpen = true;
